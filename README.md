@@ -19,7 +19,7 @@ Click *Enable the Drive Api* button to create an application and download your c
 
 ## Usage
 Currently the following three commands are available (all on the root location):
-* Upload a files
+* Upload a file
 * Download a file
 * List files
 
