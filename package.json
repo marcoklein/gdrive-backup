@@ -1,8 +1,8 @@
 {
   "name": "google-drive-shell",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A command-line tool for uploading, downloading and listing Google Drive files.",
-  "main": "index.js",
+  "main": "snippet.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,7 +24,7 @@
   "author": "Marco Klein",
   "license": "Apache-2.0",
   "bin": {
-    "snippet": "./index.js"
+    "google-drive-shell": "./index.js"
   },
   "bugs": {
     "url": "https://github.com/marcoklein/google-drive-shell/issues"
