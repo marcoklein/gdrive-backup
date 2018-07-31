@@ -28,5 +28,9 @@
   "bugs": {
     "url": "https://github.com/marcoklein/nodejs-google-drive/issues"
   },
-  "homepage": "https://github.com/marcoklein/nodejs-google-drive#readme"
+  "homepage": "https://github.com/marcoklein/nodejs-google-drive#readme",
+  "dependencies": {
+    "commander": "^2.16.0",
+    "googleapis": "^27.0.0"
+  }
 }
