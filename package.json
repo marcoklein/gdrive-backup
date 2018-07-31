@@ -32,6 +32,6 @@
   "homepage": "https://github.com/marcoklein/nodejs-google-drive#readme",
   "dependencies": {
     "commander": "^2.16.0",
-    "googleapis": "^27.0.0"
+    "googleapis": "^32.0.0"
   }
 }

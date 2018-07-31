@@ -104,20 +104,31 @@ function uploadFile(auth, options) {
   });
 }
 
+
 function downloadFile(auth, options) {
-  var fileId = '0BwwA4oUTeiV1UVNwOHItT0xfa2M';
+  const drive = google.drive({version: 'v3', auth});
+  var fileId = options.fileId;
   var dest = fs.createWriteStream(options.dest);
+  console.log('Downloading file with id: ' + fileId);
+
   drive.files.get({
       fileId: fileId,
       alt: 'media'
-    })
-    .on('end', function() {
-      console.log('Done');
-    })
-    .on('error', function(err) {
-      console.log('Error during download', err);
-    })
-    .pipe(dest);
+    },
+    { responseType: 'stream' },
+    (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      //console.log(res.data);
+      res.data
+        .on('end', function() {
+          console.log('Downloaded file.');
+        })
+        .on('error', function (err) {
+          console.error(err);
+        })
+        .pipe(dest);
+    }
+  );
 }
 
 /**
