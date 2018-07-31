@@ -18,15 +18,16 @@ Click *Enable the Drive Api* button to create an application and download your c
 
 
 ## Usage
-
-```
-google-drive-shell download 1SZZy40xTPPMJG1pMl3ikpULVg5VKE5rq -c mycredentials.json -d testupload.txt
-```
+Currently the following three commands are available (all on the root location):
+* Upload a files
+* Download a file
+* List files
 
 ### Upload a file
 ```
 google-drive-shell upload testupload.txt -c mycredentials.json
 ```
+Help:
 ```
 Usage: upload [options] <file>
 
@@ -41,6 +42,7 @@ Options:
 ```
 google-drive-shell download 1SZZy40xTPPMJG1pMl3ikpULVg5VKE5rq -c mycredentials.json -d testupload.txt
 ```
+Help:
 ```
 Usage: download [options] <id>
 
@@ -56,6 +58,7 @@ Options:
 ```
 google-drive-shell list -c mycredentials.json
 ```
+Help:
 ```
 Usage: list [options]
 
