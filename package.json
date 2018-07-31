@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marcoklein/nodejs-google-drive.git"
+    "url": "git+https://github.com/marcoklein/google-drive-shell.git"
   },
   "keywords": [
     "Google",
@@ -27,9 +27,9 @@
     "snippet": "./index.js"
   },
   "bugs": {
-    "url": "https://github.com/marcoklein/nodejs-google-drive/issues"
+    "url": "https://github.com/marcoklein/google-drive-shell/issues"
   },
-  "homepage": "https://github.com/marcoklein/nodejs-google-drive#readme",
+  "homepage": "https://github.com/marcoklein/google-drive-shell#readme",
   "dependencies": {
     "commander": "^2.16.0",
     "googleapis": "^32.0.0"
