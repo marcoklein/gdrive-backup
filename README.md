@@ -12,7 +12,7 @@ npm install google-drive-shell -g
 Create an application on Google Drive to get the credentials.json that needs to
 be sent with each request.
 
-(Access Google Api Authorization)[https://developers.google.com/drive/api/v3/quickstart/nodejs#step_1_turn_on_the]
+[https://developers.google.com/drive/api/v3/quickstart/nodejs#step_1_turn_on_the](Access Google Api Authorization)
 
 Click *Enable the Drive Api* button to create an application and download your credentials.
 
