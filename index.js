@@ -44,7 +44,7 @@ program
     options.fileId = download;
     options.credentials = options.credentials || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
-    executeCommand(uploadFile, options);
+    executeCommand(downloadFile, options);
   });
 
 
@@ -106,7 +106,7 @@ function uploadFile(auth, options) {
 
 function downloadFile(auth, options) {
   var fileId = '0BwwA4oUTeiV1UVNwOHItT0xfa2M';
-  var dest = fs.createWriteStream('/tmp/photo.jpg');
+  var dest = fs.createWriteStream(options.dest);
   drive.files.get({
       fileId: fileId,
       alt: 'media'
