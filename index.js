@@ -18,6 +18,7 @@ program
   .command('upload <file>')
   .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
   .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
+  .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (upload, options) {
     // prepare options
     options.file = upload;
@@ -28,13 +29,33 @@ program
 
 
 program
-  .command('download <file>');
+  .command('download <id>')
+  .option('-d, --dest <file>', 'set destination file (required)')
+  .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
+  .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
+  .option('--token-code <code>', 'set token code needed to authorize the app')
+  .action(function (download, options) {
+    // test for required options
+    if (!options.dest) {
+      console.error('No destination file specified (use --dest <file>)');
+      return process.exit(1);
+    }
+    // prepare options
+    options.fileId = download;
+    options.credentials = options.credentials || "credentials.json";
+    options.uploadType = options.uploadType || "resumable";
+    executeCommand(uploadFile, options);
+  });
+
 
 program
   .command('list')
+  .option('-o, --order-by <orderBy>', 'set order of files. defaults to "modifiedTime"')
   .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
+  .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (options) {
     // prepare options
+    options.orderBy = options.orderBy || "modifiedTime";
     options.credentials = options.credentials || "credentials.json";
     executeCommand(listFiles, options);
   });
@@ -77,9 +98,26 @@ function uploadFile(auth, options) {
       // Handle error
       console.error(err);
     } else {
-      console.log('File Id: ', file.id);
+      console.log('Uploaded file with id:')
+      console.log(file.data.id);
     }
   });
+}
+
+function downloadFile(auth, options) {
+  var fileId = '0BwwA4oUTeiV1UVNwOHItT0xfa2M';
+  var dest = fs.createWriteStream('/tmp/photo.jpg');
+  drive.files.get({
+      fileId: fileId,
+      alt: 'media'
+    })
+    .on('end', function() {
+      console.log('Done');
+    })
+    .on('error', function(err) {
+      console.log('Error during download', err);
+    })
+    .pipe(dest);
 }
 
 /**
@@ -90,14 +128,15 @@ function listFiles(auth, options) {
   const drive = google.drive({version: 'v3', auth});
   drive.files.list({
     pageSize: 10,
-    fields: 'nextPageToken, files(id, name)',
+    fields: 'nextPageToken, files(id, name, modifiedTime)',
+
   }, (err, res) => {
     if (err) return console.log('The API returned an error: ' + err);
     const files = res.data.files;
     if (files.length) {
       console.log('Files:');
       files.map((file) => {
-        console.log(`${file.name} (${file.id})`);
+        console.log(`${file.name},${file.id},${file.modifiedTime}`);
       });
     } else {
       console.log('No files found.');
@@ -136,22 +175,46 @@ function getAccessToken(oAuth2Client, options, callback) {
     access_type: 'offline',
     scope: SCOPES,
   });
-  console.log('Authorize this app by visiting this url:', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('Enter the code from that page here: ', (code) => {
-    rl.close();
-    oAuth2Client.getToken(code, (err, token) => {
-      if (err) return callback(err, options);
+
+  console.log('#########################################################################');
+  console.log('#########################################################################');
+  console.log('################ App authorization needed. ##############################');
+  console.log('############### Visit the following website #############################');
+  console.log('######### and provide code through --token-code <code>. #################');
+  console.log('#########################################################################');
+  console.log('#########################################################################');
+  console.log(authUrl);
+
+  if (options.tokenCode) {
+    console.log('Token code found, trying to authorize...');
+    oAuth2Client.getToken(options.tokenCode, (err, token) => {
+      if (err) {
+        console.log('#########################################################################');
+        console.log('#########################################################################');
+        console.log('################# Provided token invalid! ###############################');
+        console.log('################ App authorization needed. ##############################');
+        console.log('############### Visit the following website #############################');
+        console.log('######### and provide code through --token-code <code>. #################');
+        console.log('#########################################################################');
+        console.log('#########################################################################');
+        console.log(authUrl);
+        process.exit(2);
+        return;
+      }
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
       fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) console.error(err);
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
         console.log('Token stored to', TOKEN_PATH);
       });
       callback(oAuth2Client, options);
     });
-  });
+  } else {
+    process.exit(2);
+  }
+
+
 }
