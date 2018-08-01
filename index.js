@@ -19,9 +19,9 @@ program
   .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
   .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
   .option('--token-code <code>', 'set token code needed to authorize the app')
-  .action(function (upload, options) {
+  .action(function (file, options) {
     // prepare options
-    options.file = upload;
+    options.file = file;
     options.credentials = options.credentials || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
     executeCommand(uploadFile, options);
@@ -29,19 +29,19 @@ program
 
 
 program
-  .command('download <id>')
+  .command('download [id]')
   .option('-d, --dest <file>', 'set destination file (required)')
   .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
   .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
   .option('--token-code <code>', 'set token code needed to authorize the app')
-  .action(function (download, options) {
+  .action(function (fileId, options) {
     // test for required options
     if (!options.dest) {
       console.error('No destination file specified (use --dest <file>)');
       return process.exit(1);
     }
     // prepare options
-    options.fileId = download;
+    options.fileId = fileId;
     options.credentials = options.credentials || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
     executeCommand(downloadFile, options);
@@ -187,15 +187,6 @@ function getAccessToken(oAuth2Client, options, callback) {
     scope: SCOPES,
   });
 
-  console.log('#########################################################################');
-  console.log('#########################################################################');
-  console.log('################ App authorization needed. ##############################');
-  console.log('############### Visit the following website #############################');
-  console.log('######### and provide code through --token-code <code>. #################');
-  console.log('#########################################################################');
-  console.log('#########################################################################');
-  console.log(authUrl);
-
   if (options.tokenCode) {
     console.log('Token code found, trying to authorize...');
     oAuth2Client.getToken(options.tokenCode, (err, token) => {
@@ -224,6 +215,14 @@ function getAccessToken(oAuth2Client, options, callback) {
       callback(oAuth2Client, options);
     });
   } else {
+    console.log('#########################################################################');
+    console.log('#########################################################################');
+    console.log('################ App authorization needed. ##############################');
+    console.log('############### Visit the following website #############################');
+    console.log('######### and provide code through --token-code <code>. #################');
+    console.log('#########################################################################');
+    console.log('#########################################################################');
+    console.log(authUrl);
     process.exit(2);
   }
 
