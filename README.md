@@ -69,3 +69,8 @@ Options:
   --token-code <code>                   set token code needed to authorize the app
   -h, --help                            output usage information
 ```
+
+# Next Steps
+[-] Support Folder upload
+[-] Make tutorial about backup (download latest file from specific folder)
+[-] Instruction steps for token verification
