@@ -1,8 +1,8 @@
 {
-  "name": "google-drive-shell",
-  "version": "1.2.0",
-  "description": "A command-line tool for uploading, downloading and listing Google Drive files.",
-  "main": "snippet.js",
+  "name": "google-drive-backup",
+  "version": "2.0.0",
+  "description": "A shell command-line tool for easy backups by uploading, downloading and listing Google Drive files.",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,7 +24,7 @@
   "author": "Marco Klein",
   "license": "Apache-2.0",
   "bin": {
-    "google-drive-shell": "./index.js"
+    "google-drive-backup": "./index.js"
   },
   "bugs": {
     "url": "https://github.com/marcoklein/google-drive-shell/issues"

@@ -71,6 +71,6 @@ Options:
 ```
 
 # Next Steps
-[-] Support Folder upload
-[-] Make tutorial about backup (download latest file from specific folder)
-[-] Instruction steps for token verification
+* Support Folder upload
+* Make tutorial about backup (download latest file from specific folder)
+* Instruction steps for token verification

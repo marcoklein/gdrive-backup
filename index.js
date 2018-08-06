@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// inspired by sample code on https://developers.google.com/drive/api/v3/quickstart/nodejs
+
 // load required packages
 const fs = require('fs');
 const readline = require('readline');
@@ -16,9 +18,10 @@ const TOKEN_PATH = 'token.json';
 // define command line options
 program
   .command('upload <file>')
-  .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
-  .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
+  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-t, --upload-type <type>', 'set upload [type]', 'resumable')
   .option('--token-code <code>', 'set token code needed to authorize the app')
+  .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
   .action(function (file, options) {
     // prepare options
     options.file = file;
@@ -31,9 +34,10 @@ program
 program
   .command('download [id]')
   .option('-d, --dest <file>', 'set destination file (required)')
-  .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
-  .option('-t, --upload-type <type>', 'set upload type. defaults to "resumable"')
+  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-l, --latest', 'download the latest available file')
   .option('--token-code <code>', 'set token code needed to authorize the app')
+  .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
   .action(function (fileId, options) {
     // test for required options
     if (!options.dest) {
@@ -63,7 +67,7 @@ program
 
 program.parse(process.argv);
 
-
+if (!program.args.length) program.help();
 
 /**
  * Executes the command using given options.
@@ -187,6 +191,39 @@ function getAccessToken(oAuth2Client, options, callback) {
     scope: SCOPES,
   });
 
+  // let user input token code in shell
+  let inputToken = function () {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.question('Enter the code from that page here: ', (code) => {
+      rl.close();
+      oAuth2Client.getToken(code, (err, token) => {
+        if (err) {
+          console.error(err);
+
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          console.log('################# Provided token invalid! ###############################');
+          console.log('################ App authorization needed. ##############################');
+          console.log('############### Visit the following website #############################');
+          console.log('######### and provide code through --token-code <code>. #################');
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          return process.exit(2);
+        }
+        oAuth2Client.setCredentials(token);
+        // Store the token to disk for later program executions
+        fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+          if (err) console.error(err);
+          console.log('Token stored to', TOKEN_PATH);
+        });
+        callback(oAuth2Client, options);
+      });
+    });
+  }
+
   if (options.tokenCode) {
     console.log('Token code found, trying to authorize...');
     oAuth2Client.getToken(options.tokenCode, (err, token) => {
@@ -200,7 +237,12 @@ function getAccessToken(oAuth2Client, options, callback) {
         console.log('#########################################################################');
         console.log('#########################################################################');
         console.log(authUrl);
-        process.exit(2);
+        if (options.input) {
+          // await user input
+          inputToken();
+        } else {
+          process.exit(2);
+        }
         return;
       }
       oAuth2Client.setCredentials(token);
@@ -223,7 +265,12 @@ function getAccessToken(oAuth2Client, options, callback) {
     console.log('#########################################################################');
     console.log('#########################################################################');
     console.log(authUrl);
-    process.exit(2);
+    if (options.input) {
+      // await user input
+      inputToken();
+    } else {
+      process.exit(2);
+    }
   }
 
 
