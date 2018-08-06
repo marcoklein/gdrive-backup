@@ -1,5 +1,5 @@
 {
-  "name": "google-drive-backup",
+  "name": "gdrive-backup",
   "version": "2.0.0",
   "description": "A shell command-line tool for easy backups by uploading, downloading and listing Google Drive files.",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marcoklein/google-drive-shell.git"
+    "url": "git+https://github.com/marcoklein/gdrive-backup.git"
   },
   "keywords": [
     "Google",
@@ -24,12 +24,12 @@
   "author": "Marco Klein",
   "license": "Apache-2.0",
   "bin": {
-    "google-drive-backup": "./index.js"
+    "gdrive-backup": "./index.js"
   },
   "bugs": {
-    "url": "https://github.com/marcoklein/google-drive-shell/issues"
+    "url": "https://github.com/marcoklein/gdrive-backup/issues"
   },
-  "homepage": "https://github.com/marcoklein/google-drive-shell#readme",
+  "homepage": "https://github.com/marcoklein/gdrive-backup#readme",
   "dependencies": {
     "commander": "^2.16.0",
     "googleapis": "^32.0.0"
