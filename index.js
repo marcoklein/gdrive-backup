@@ -12,7 +12,7 @@ const program = require('commander');
 
 // If modifying these scopes, delete credentials.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = './token.json';
 
 
 program
@@ -120,6 +120,7 @@ function uploadFile(auth, options) {
     if (err) {
       // Handle error
       console.error(err);
+      process.exit(1);
     } else {
       console.log('Uploaded file with id:')
       console.log(file.data.id);
@@ -148,6 +149,7 @@ function downloadFile(auth, options) {
         })
         .on('error', function (err) {
           console.error(err);
+          process.exit(1);
         })
         .pipe(dest);
     }
@@ -235,10 +237,13 @@ function getAccessToken(oAuth2Client, options, callback) {
         oAuth2Client.setCredentials(token);
         // Store the token to disk for later program executions
         fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-          if (err) console.error(err);
+          if (err) {
+            console.error(err);
+            process.exit(1);
+          }
           console.log('Token stored to', TOKEN_PATH);
+          callback(oAuth2Client, options);
         });
-        callback(oAuth2Client, options);
       });
     });
   }
@@ -281,8 +286,8 @@ function getAccessToken(oAuth2Client, options, callback) {
           process.exit(1);
         }
         console.log('Token stored to', TOKEN_PATH);
+        callback(oAuth2Client, options);
       });
-      callback(oAuth2Client, options);
     });
   } else {
     if (options.input) {
