@@ -5,7 +5,7 @@ Install NodeJs and npm to use this package.
 Install globally from npm:
 
 ```
-npm install google-drive-shell -g
+npm install gdrive-backup -g
 ```
 
 ## Prerequesits
@@ -25,7 +25,7 @@ Currently the following three commands are available (all on the root location):
 
 ### Upload a file
 ```
-google-drive-shell upload testupload.txt -c mycredentials.json
+gdrive-backup upload testupload.txt -c mycredentials.json
 ```
 Help:
 ```
@@ -40,7 +40,7 @@ Options:
 ```
 ### Download a file
 ```
-google-drive-shell download 1SZZy40xTPPMJG1pMl3ikpULVg5VKE5rq -c mycredentials.json -d testupload.txt
+gdrive-backup download 1SZZy40xTPPMJG1pMl3ikpULVg5VKE5rq -c mycredentials.json -d testupload.txt
 ```
 Help:
 ```
@@ -56,7 +56,7 @@ Options:
 ```
 ### List files
 ```
-google-drive-shell list -c mycredentials.json
+gdrive-backup list -c mycredentials.json
 ```
 Help:
 ```
