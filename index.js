@@ -228,19 +228,28 @@ function getAccessToken(oAuth2Client, options, callback) {
     console.log('Token code found, trying to authorize...');
     oAuth2Client.getToken(options.tokenCode, (err, token) => {
       if (err) {
-        console.log('#########################################################################');
-        console.log('#########################################################################');
-        console.log('################# Provided token invalid! ###############################');
-        console.log('################ App authorization needed. ##############################');
-        console.log('############### Visit the following website #############################');
-        console.log('######### and provide code through --token-code <code>. #################');
-        console.log('#########################################################################');
-        console.log('#########################################################################');
-        console.log(authUrl);
         if (options.input) {
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          console.log('################# Provided token invalid! ###############################');
+          console.log('################ App authorization needed. ##############################');
+          console.log('############### Visit the following website #############################');
+          console.log('######### and input the token using the command line. ###################');
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          console.log(authUrl);
           // await user input
           inputToken();
         } else {
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          console.log('################# Provided token invalid! ###############################');
+          console.log('################ App authorization needed. ##############################');
+          console.log('############### Visit the following website #############################');
+          console.log('######### and provide code through --token-code <code>. #################');
+          console.log('#########################################################################');
+          console.log('#########################################################################');
+          console.log(authUrl);
           process.exit(2);
         }
         return;
@@ -257,18 +266,26 @@ function getAccessToken(oAuth2Client, options, callback) {
       callback(oAuth2Client, options);
     });
   } else {
-    console.log('#########################################################################');
-    console.log('#########################################################################');
-    console.log('################ App authorization needed. ##############################');
-    console.log('############### Visit the following website #############################');
-    console.log('######### and provide code through --token-code <code>. #################');
-    console.log('#########################################################################');
-    console.log('#########################################################################');
-    console.log(authUrl);
     if (options.input) {
+      console.log('#########################################################################');
+      console.log('#########################################################################');
+      console.log('################ App authorization needed. ##############################');
+      console.log('############### Visit the following website #############################');
+      console.log('######### and input the code using the command line. ####################');
+      console.log('#########################################################################');
+      console.log('#########################################################################');
+      console.log(authUrl);
       // await user input
       inputToken();
     } else {
+      console.log('#########################################################################');
+      console.log('#########################################################################');
+      console.log('################ App authorization needed. ##############################');
+      console.log('############### Visit the following website #############################');
+      console.log('######### and provide code through --token-code <code>. #################');
+      console.log('#########################################################################');
+      console.log('#########################################################################');
+      console.log(authUrl);
       process.exit(2);
     }
   }
