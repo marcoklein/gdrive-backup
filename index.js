@@ -91,7 +91,10 @@ if (!program.args.length) program.help();
 function executeCommand(commandFunction, options) {
   // Load client secrets from a local file.
   fs.readFile(options.credentials, (err, content) => {
-    if (err) return console.log('Error loading client secret file:', err);
+    if (err) {
+      console.log('Error loading client secret file:', err);
+      process.exit(1);
+    }
     // Authorize a client with credentials, then call the Google Drive API.
     authorize(JSON.parse(content), options, commandFunction);
   });
