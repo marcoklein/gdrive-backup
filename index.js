@@ -18,6 +18,20 @@ const TOKEN_PATH = 'token.json';
 program
   .description('Easily upload, download and list your backups. Upcoming feature: backup within folders.');
 
+program
+  .command('authorize')
+  .description('Authorize app to be used with specific Google Drive.')
+  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('--token-code <code>', 'set token code needed to authorize the app')
+  .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
+  .action(function (options) {
+    executeCommand(function () {
+      // authorization succeeded
+      console.log('Authorization succeeded.');
+      process.exit(0);
+    }, options);
+  });
+
 // define command line options
 program
   .command('upload <file>')
