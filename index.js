@@ -15,6 +15,9 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = 'token.json';
 
 
+program
+  .description('Easily upload, download and list your backups. Upcoming feature: backup within folders.');
+
 // define command line options
 program
   .command('upload <file>')
@@ -25,7 +28,6 @@ program
   .action(function (file, options) {
     // prepare options
     options.file = file;
-    options.credentials = options.credentials || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
     executeCommand(uploadFile, options);
   });
