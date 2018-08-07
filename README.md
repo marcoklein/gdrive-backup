@@ -74,3 +74,6 @@ Options:
 * Support Folder upload
 * Make tutorial about backup (download latest file from specific folder)
 * Instruction steps for token verification
+* Name files automatically
+* Compression
+* Encryption
