@@ -4,6 +4,7 @@
 
 // load required packages
 const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const {google} = require('googleapis');
 
@@ -12,15 +13,15 @@ const program = require('commander');
 
 // If modifying these scopes, delete credentials.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
-const TOKEN_PATH = './token.json';
+const TOKEN_PATH = 'token.json';
 
 
 program
-  .description('Easily upload, download and list your backups. Upcoming feature: backup within folders.');
+  .description('Easily upload, download and list backups. Upcoming feature: backup within folders.');
 
 program
   .command('authorize')
-  .description('Authorize app to be used with specific Google Drive.')
+  .description('Authorize app to be used with specific Google Drive account.')
   .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
@@ -30,6 +31,18 @@ program
       console.log('Authorization succeeded.');
       process.exit(0);
     }, options);
+  });
+
+
+// TODO insert custom help with *.on('help');
+program
+  .command('backup <path> <name> [directory]')
+  .description('Backup a specific folder using compression and encryption.')
+  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
+  .option('--token-code <code>', 'set token code needed to authorize the app')
+  .action(function (file, options) {
+    executeCommand(backup, options);
   });
 
 // define command line options
@@ -90,9 +103,24 @@ if (!program.args.length) program.help();
  */
 function executeCommand(commandFunction, options) {
   // Load client secrets from a local file.
-  fs.readFile(options.credentials, (err, content) => {
+  fs.readFile(path.resolve(__dirname, options.credentials), (err, content) => {
     if (err) {
-      console.log('Error loading client secret file. Set it using the -c command or save it under credentials.json in same folder.', err);
+      console.log('Error loading client secret file. Set it using the -c command or save it under credentials.json in the same folder.', err);
+      process.exit(1);
+    }
+    // Authorize a client with credentials, then call the Google Drive API.
+    authorize(JSON.parse(content), options, commandFunction);
+  });
+}
+
+/**
+Backup given folder by running gzip for compression and encryption.
+*/
+function backup(auth, options) {
+  // read secret key for encryption
+  fs.readFile(path.resolve(__dirname, options.credentials), (err, content) => {
+    if (err) {
+      console.log('Error loading encryption secret. Set it using the -c command or save it under credentials.json in the same folder.', err);
       process.exit(1);
     }
     // Authorize a client with credentials, then call the Google Drive API.
@@ -193,7 +221,7 @@ function authorize(credentials, options, callback) {
       client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, (err, token) => {
+  fs.readFile(path.resolve(__dirname, TOKEN_PATH), (err, token) => {
     if (err) return getAccessToken(oAuth2Client, options, callback);
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client, options);
@@ -236,12 +264,12 @@ function getAccessToken(oAuth2Client, options, callback) {
         }
         oAuth2Client.setCredentials(token);
         // Store the token to disk for later program executions
-        fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+        fs.writeFile(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token), (err) => {
           if (err) {
             console.error(err);
             process.exit(1);
           }
-          console.log('Token stored to', TOKEN_PATH);
+          console.log('Token stored to', path.resolve(__dirname, TOKEN_PATH));
           callback(oAuth2Client, options);
         });
       });
@@ -280,12 +308,12 @@ function getAccessToken(oAuth2Client, options, callback) {
       }
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+      fs.writeFile(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token), (err) => {
         if (err) {
           console.error(err);
           process.exit(1);
         }
-        console.log('Token stored to', TOKEN_PATH);
+        console.log('Token stored to', path.resolve(__dirname, TOKEN_PATH));
         callback(oAuth2Client, options);
       });
     });
