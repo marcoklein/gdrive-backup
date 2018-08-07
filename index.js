@@ -17,7 +17,7 @@ const TOKEN_PATH = 'token.json';
 
 
 program
-  .description('Easily upload, download and list backups. Upcoming feature: backup within folders.');
+  .description('Easily upload, download and list backups. Upcoming feature: backup within folders, encryption.');
 
 program
   .command('authorize')
@@ -37,7 +37,7 @@ program
 // TODO insert custom help with *.on('help');
 program
   .command('backup <path> <name> [directory]')
-  .description('Backup a specific folder using compression and encryption.')
+  .description('Coming soon! Backup a specific folder using compression and encryption.')
   .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
   .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
   .option('--token-code <code>', 'set token code needed to authorize the app')
@@ -115,17 +115,26 @@ function executeCommand(commandFunction, options) {
 
 /**
 Backup given folder by running gzip for compression and encryption.
+
+0. create unique backup name
+1. compress
+2. encrypt
+3. upload
 */
 function backup(auth, options) {
+  console.error('Backup is an unsupported function but will be added soon for easier compression and encryption.');
+  process.exit(1);
   // read secret key for encryption
-  fs.readFile(path.resolve(__dirname, options.credentials), (err, content) => {
+
+  /*fs.readFile(path.resolve(__dirname, options.credentials), (err, key) => {
     if (err) {
-      console.log('Error loading encryption secret. Set it using the -c command or save it under credentials.json in the same folder.', err);
+      console.log('Error loading encryption key. Set it using the -k command or save it under encryption-key in the same folder.', err);
       process.exit(1);
     }
-    // Authorize a client with credentials, then call the Google Drive API.
-    authorize(JSON.parse(content), options, commandFunction);
-  });
+    // key read
+    // 1. compress
+
+  });*/
 }
 
 
