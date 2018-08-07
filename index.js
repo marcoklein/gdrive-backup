@@ -13,7 +13,6 @@ const program = require('commander');
 
 // If modifying these scopes, delete credentials.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
-const TOKEN_PATH = 'token.json';
 
 
 program
@@ -22,7 +21,8 @@ program
 program
   .command('authorize')
   .description('Authorize app to be used with specific Google Drive account.')
-  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-c, --credentials-path <credentials-path>', 'set [credentials-path]', 'credentials.json')
+  .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
   .action(function (options) {
@@ -38,7 +38,8 @@ program
 program
   .command('backup <path> <name> [directory]')
   .description('Coming soon! Backup a specific folder using compression and encryption.')
-  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
+  .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (file, options) {
@@ -48,8 +49,9 @@ program
 // define command line options
 program
   .command('upload <file>')
-  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
-  .option('-t, --upload-type <type>', 'set upload [type]', 'resumable')
+  .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
+  .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
+  .option('--upload-type <type>', 'set upload [type]', 'resumable')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
   .action(function (file, options) {
@@ -63,7 +65,8 @@ program
 program
   .command('download [id]')
   .option('-d, --dest <file>', 'set destination file (required)')
-  .option('-c, --credentials <credentials>', 'set [credentials] file path', 'credentials.json')
+  .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
+  .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('-l, --latest', 'download the latest available file')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
@@ -75,7 +78,7 @@ program
     }
     // prepare options
     options.fileId = fileId;
-    options.credentials = options.credentials || "credentials.json";
+    options.credentialsPath = options.credentialsPath || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
     executeCommand(downloadFile, options);
   });
@@ -83,13 +86,14 @@ program
 
 program
   .command('list')
+  .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
+  .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('-o, --order-by <orderBy>', 'set order of files. defaults to "modifiedTime"')
-  .option('-c, --credentials <credentials.json>', 'set credentials file path. defaults to "credentials.json"')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (options) {
     // prepare options
     options.orderBy = options.orderBy || "modifiedTime";
-    options.credentials = options.credentials || "credentials.json";
+    options.credentialsPath = options.credentialsPath || "credentials.json";
     executeCommand(listFiles, options);
   });
 
@@ -103,7 +107,7 @@ if (!program.args.length) program.help();
  */
 function executeCommand(commandFunction, options) {
   // Load client secrets from a local file.
-  fs.readFile(path.resolve(__dirname, options.credentials), (err, content) => {
+  fs.readFile(path.resolve(__dirname, options.credentialsPath), (err, content) => {
     if (err) {
       console.log('Error loading client secret file. Set it using the -c command or save it under credentials.json in the same folder.', err);
       process.exit(1);
@@ -230,7 +234,7 @@ function authorize(credentials, options, callback) {
       client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
-  fs.readFile(path.resolve(__dirname, TOKEN_PATH), (err, token) => {
+  fs.readFile(path.resolve(__dirname, options.tokenPath), (err, token) => {
     if (err) return getAccessToken(oAuth2Client, options, callback);
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client, options);
@@ -273,12 +277,12 @@ function getAccessToken(oAuth2Client, options, callback) {
         }
         oAuth2Client.setCredentials(token);
         // Store the token to disk for later program executions
-        fs.writeFile(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token), (err) => {
+        fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
           if (err) {
             console.error(err);
             process.exit(1);
           }
-          console.log('Token stored to', path.resolve(__dirname, TOKEN_PATH));
+          console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
           callback(oAuth2Client, options);
         });
       });
@@ -317,12 +321,12 @@ function getAccessToken(oAuth2Client, options, callback) {
       }
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
-      fs.writeFile(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token), (err) => {
+      fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
         if (err) {
           console.error(err);
           process.exit(1);
         }
-        console.log('Token stored to', path.resolve(__dirname, TOKEN_PATH));
+        console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
         callback(oAuth2Client, options);
       });
     });
