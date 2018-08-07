@@ -1,6 +1,6 @@
 {
   "name": "gdrive-backup",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "A shell command-line tool for easy backups by uploading, downloading and listing Google Drive files.",
   "main": "index.js",
   "scripts": {
