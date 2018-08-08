@@ -135,7 +135,7 @@ if (!program.args.length) program.help();
  */
 function executeCommand(commandFunction, options) {
   // Load client secrets from a local file.
-  fs.readFile(path.resolve(__dirname, options.credentialsPath), (err, content) => {
+  fs.readFile(options.credentialsPath, (err, content) => {
     if (err) {
       console.log('Error loading client secret file. Set it using the -c command or save it under credentials.json in the same folder.', err);
       process.exit(-1);
@@ -335,7 +335,7 @@ function authorize(credentials, options, callback) {
       client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
-  fs.readFile(path.resolve(__dirname, options.tokenPath), (err, token) => {
+  fs.readFile(options.tokenPath, (err, token) => {
     if (err) return getAccessToken(oAuth2Client, options, callback);
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client, options);
@@ -378,12 +378,12 @@ function getAccessToken(oAuth2Client, options, callback) {
         }
         oAuth2Client.setCredentials(token);
         // Store the token to disk for later program executions
-        fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
+        fs.writeFile(options.tokenPath, JSON.stringify(token), (err) => {
           if (err) {
             console.error(err);
             process.exit(-1);
           }
-          console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
+          console.log('Token stored to', options.tokenPath);
           callback(oAuth2Client, options);
         });
       });
@@ -422,12 +422,12 @@ function getAccessToken(oAuth2Client, options, callback) {
       }
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
-      fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
+      fs.writeFile(options.tokenPath, JSON.stringify(token), (err) => {
         if (err) {
           console.error(err);
           process.exit(-1);
         }
-        console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
+        console.log('Token stored to', options.tokenPath);
         callback(oAuth2Client, options);
       });
     });
