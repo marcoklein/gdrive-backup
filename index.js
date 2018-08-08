@@ -79,7 +79,7 @@ program
   //.option('-l, --latest', 'download the latest available file')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
-  .action(function (fileId, options) {
+  .action(function (name, directory, options) {
     // test for required options
     /*if (!options.dest) {
       console.error('No destination file specified (use --dest <file>)');
