@@ -210,7 +210,7 @@ function download(auth, options) {
     var file = files[0]; // newest backup
     options.dest = options.dest || file.name; // set destination if unset
     // download most recent backup
-    downloadFile(auth, file.id, options.dest, (err, file) => {
+    downloadFile(auth, file.id, options.dest, (err, res) => {
       if (err) {
         console.error(err);
         process.exit(-1);
@@ -218,7 +218,7 @@ function download(auth, options) {
       }
       console.log('Successfully downloaded latest backup.');
       console.log('createdTime\ndestination');
-      console.log(item.createdTime);
+      console.log(file.createdTime);
       console.log(options.dest);
       process.exit(0);
     })
