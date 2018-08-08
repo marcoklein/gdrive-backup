@@ -97,7 +97,6 @@ program
 
 
     // prepare options
-    options.fileId = fileId;
     options.credentialsPath = options.credentialsPath || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
     executeCommand(download, options);
