@@ -165,7 +165,7 @@ function backup(auth, options) {
         return;
       }
       console.log('Uploaded file with id:')
-      console.log(file.data.id);
+      console.log(file.id);
       process.exit(0);
     });
   } else if (pathStats.isDirectory()) {
