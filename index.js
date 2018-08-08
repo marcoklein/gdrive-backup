@@ -217,8 +217,8 @@ function download(auth, options) {
         return;
       }
       console.log('Successfully downloaded latest backup.');
-      console.log('addedTime\ndestination');
-      console.log(item.addedTime);
+      console.log('createdTime\ndestination');
+      console.log(item.createdTime);
       console.log(options.dest);
       process.exit(0);
     })
@@ -300,9 +300,9 @@ function listFiles(auth, backupName, directory, callback) {
   drive.files.list({
     q: query,
     // pageSize: 10,
-    fields: 'nextPageToken, files(id, name, addedTime)',
+    fields: 'nextPageToken, files(id, name, createdTime)',
     spaces: 'drive',
-    orderBy: 'addedTime desc'
+    orderBy: 'createdTime desc'
 
   }, (err, res) => {
     if (err) {
@@ -313,7 +313,7 @@ function listFiles(auth, backupName, directory, callback) {
     if (files.length) {
       console.log('Files:');
       files.map((file) => {
-        console.log(`${file.name},${file.id},${file.addedTime}`);
+        console.log(`${file.name},${file.id},${file.createdTime}`);
       });
     } else {
       console.log('No files found.');
