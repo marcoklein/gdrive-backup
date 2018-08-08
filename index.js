@@ -73,18 +73,18 @@ program
 program
   .command('download <name> [directory]')
   .description('Download latest backup with given name tag.')
-  .option('-d, --dest <file>', 'set destination file (required)')
+  .option('-d, --dest <file>', 'set destination file')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
-  .option('-l, --latest', 'download the latest available file')
+  //.option('-l, --latest', 'download the latest available file')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .option('--no-input', 'set flag to not process user input (e.g. to input the authorization token in shell)')
   .action(function (fileId, options) {
     // test for required options
-    if (!options.dest) {
+    /*if (!options.dest) {
       console.error('No destination file specified (use --dest <file>)');
       return process.exit(-1);
-    }
+    }*/
 
     options.name = name;
     options.directory = directory;
@@ -100,7 +100,7 @@ program
     options.fileId = fileId;
     options.credentialsPath = options.credentialsPath || "credentials.json";
     options.uploadType = options.uploadType || "resumable";
-    executeCommand(downloadFile, options);
+    executeCommand(download, options);
   });
 
 
@@ -209,6 +209,7 @@ function download(auth, options) {
       return;
     }
     var file = files[0]; // newest backup
+    options.dest = options.dest || file.name; // set destination if unset
     // download most recent backup
     downloadFile(auth, file.id, options.dest, (err, file) => {
       if (err) {
@@ -216,7 +217,10 @@ function download(auth, options) {
         process.exit(-1);
         return;
       }
-      console.log ('Successfully downloaded latest backup.');
+      console.log('Successfully downloaded latest backup.');
+      console.log('addedTime\ndestination');
+      console.log(item.addedTime);
+      console.log(options.dest);
       process.exit(0);
     })
   });
