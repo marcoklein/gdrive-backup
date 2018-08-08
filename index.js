@@ -42,7 +42,7 @@ program
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
   .option('--token-code <code>', 'set token code needed to authorize the app')
-  .action(function (file, options) {
+  .action(function (path, name, directory, options) {
     options.path = path;
     options.name = name;
     options.directory = directory;
