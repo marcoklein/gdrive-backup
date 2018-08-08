@@ -195,7 +195,7 @@ function backup(auth, options) {
 
 function download(auth, options) {
   // retrieve file id
-  listFiles(auth, backupName, directory, (err, files) => {
+  listFiles(auth, options.name, options.directory, (err, files) => {
     if (err) {
       console.error(err);
       process.exit(-1);
