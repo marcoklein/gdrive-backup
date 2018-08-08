@@ -64,11 +64,20 @@ Usage: list [options]
 
 Options:
 
-  -o, --order-by <orderBy>              set order of files. defaults to "modifiedTime"
   -c, --credentials <credentials.json>  set credentials file path. defaults to "credentials.json"
   --token-code <code>                   set token code needed to authorize the app
   -h, --help                            output usage information
 ```
+
+# Storing and retrieving backups with properties
+When *backup* is called the file is identified with the provided *name* tag. This tag is set as the *backup_name* property for the uploaded and created backup file on Google Drive to allow finding it within a folder.
+
+The counterpart *download* searches for the newest backup ordering by *addedTime desc* and checking the property *backup_name*. If a directory is provided also the directory id is included. The final search query therefore looks like this:
+
+```javascript
+properties has { key='backup_name' and value='name' } and 'folder_id' in parents
+```
+
 
 # Next Steps
 * Support Folder upload

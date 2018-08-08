@@ -48,7 +48,7 @@ program
 
 // define command line options
 program
-  .command('upload <file>')
+  .command('upload <file> ')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('--upload-type <type>', 'set upload [type]', 'resumable')
@@ -63,7 +63,8 @@ program
 
 
 program
-  .command('download [id]')
+  .command('download <name> [directory]')
+  .description('Download backup with given name.')
   .option('-d, --dest <file>', 'set destination file (required)')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
@@ -85,14 +86,13 @@ program
 
 
 program
-  .command('list')
+  .command('list <name>')
+  .description('List backups with given name in specific folder ordered by time (starting with newest backup).')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
-  .option('-o, --order-by <orderBy>', 'set order of files. defaults to "modifiedTime"')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (options) {
     // prepare options
-    options.orderBy = options.orderBy || "modifiedTime";
     options.credentialsPath = options.credentialsPath || "credentials.json";
     executeCommand(listFiles, options);
   });
@@ -198,14 +198,21 @@ function downloadFile(auth, options) {
 }
 
 /**
- * Lists the names and IDs of up to 10 files.
- * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ * Retrieve
  */
-function listFiles(auth, options) {
+function listFiles(auth, options, callback) {
+  // create query for files
+  var query = "properties has { key='backup_name' and value='" + options.name + "' }";
+  // TODO if directories are supported: add following line
+  //query += " and 'folder_id' in parents";
+
   const drive = google.drive({version: 'v3', auth});
   drive.files.list({
-    pageSize: 10,
-    fields: 'nextPageToken, files(id, name, modifiedTime)',
+    q: query,
+    // pageSize: 10,
+    fields: 'nextPageToken, files(id, name, addedTime)',
+    spaces: 'drive',
+    orderBy: 'addedTime desc'
 
   }, (err, res) => {
     if (err) return console.log('The API returned an error: ' + err);
@@ -213,14 +220,13 @@ function listFiles(auth, options) {
     if (files.length) {
       console.log('Files:');
       files.map((file) => {
-        console.log(`${file.name},${file.id},${file.modifiedTime}`);
+        console.log(`${file.name},${file.id},${file.addedTime}`);
       });
     } else {
       console.log('No files found.');
     }
   });
 }
-
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
