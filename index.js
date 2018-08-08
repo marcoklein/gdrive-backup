@@ -43,11 +43,19 @@ program
   .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (file, options) {
+    options.path = path;
+    options.name = name;
+    options.directory = directory;
+    if (directory) {
+      console.error('Directories are not yet supported but are available soon. Feel free to contribute to this project by making a pull request.');
+      process.exit(-1);
+      return;
+    }
     executeCommand(backup, options);
   });
 
 // define command line options
-program
+/*program
   .command('upload <file> ')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
@@ -59,12 +67,12 @@ program
     options.file = file;
     options.uploadType = options.uploadType || "resumable";
     executeCommand(uploadFile, options);
-  });
+  });*/
 
 
 program
   .command('download <name> [directory]')
-  .description('Download backup with given name.')
+  .description('Download latest backup with given name tag.')
   .option('-d, --dest <file>', 'set destination file (required)')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
@@ -75,8 +83,19 @@ program
     // test for required options
     if (!options.dest) {
       console.error('No destination file specified (use --dest <file>)');
-      return process.exit(1);
+      return process.exit(-1);
     }
+
+    options.name = name;
+    options.directory = directory;
+
+    if (directory) {
+      console.error('Directories are not yet supported but are available soon. Feel free to contribute to this project by making a pull request.');
+      process.exit(-1);
+      return;
+    }
+
+
     // prepare options
     options.fileId = fileId;
     options.credentialsPath = options.credentialsPath || "credentials.json";
@@ -85,17 +104,26 @@ program
   });
 
 
-program
-  .command('list <name>')
+/*program
+  .command('list <name> [directory]')
   .description('List backups with given name in specific folder ordered by time (starting with newest backup).')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('--token-code <code>', 'set token code needed to authorize the app')
   .action(function (options) {
+    options.name = name;
+    options.directory = directory;
+
+    if (directory) {
+      console.error('Directories are not yet supported but are available soon. Feel free to contribute to this project by making a pull request.');
+      process.exit(-1);
+      return;
+    }
+
     // prepare options
     options.credentialsPath = options.credentialsPath || "credentials.json";
     executeCommand(listFiles, options);
-  });
+  });*/
 
 
 program.parse(process.argv);
@@ -110,7 +138,7 @@ function executeCommand(commandFunction, options) {
   fs.readFile(path.resolve(__dirname, options.credentialsPath), (err, content) => {
     if (err) {
       console.log('Error loading client secret file. Set it using the -c command or save it under credentials.json in the same folder.', err);
-      process.exit(1);
+      process.exit(-1);
     }
     // Authorize a client with credentials, then call the Google Drive API.
     authorize(JSON.parse(content), options, commandFunction);
@@ -126,32 +154,91 @@ Backup given folder by running gzip for compression and encryption.
 3. upload
 */
 function backup(auth, options) {
-  console.error('Backup is an unsupported function but will be added soon for easier compression and encryption.');
-  process.exit(1);
-  // read secret key for encryption
+  // if path is folder, compress it, if it's a file upload it
+  var pathStats = fs.lstatSync(options.path);
+  if (pathStats.isFile()) {
+    // file
+    uploadFile(auth, options.path, options.name, function (err, file) {
+      if (err) {
+        console.error(err);
+        process.exit(-1);
+        return;
+      }
+      console.log('Uploaded file with id:')
+      console.log(file.data.id);
+      process.exit(0);
+    });
+  } else if (pathStats.isDirectory()) {
+    // directory
+    console.error('Directory backup is not yet supported. Use other command line tools (like tar) to compress your backup folder.');
+    process.exit(-1);
 
-  /*fs.readFile(path.resolve(__dirname, options.credentials), (err, key) => {
-    if (err) {
-      console.log('Error loading encryption key. Set it using the -k command or save it under encryption-key in the same folder.', err);
-      process.exit(1);
-    }
-    // key read
-    // 1. compress
+    // TODO add support for encryption
+    // read secret key for encryption
 
-  });*/
+    /*fs.readFile(path.resolve(__dirname, options.credentials), (err, key) => {
+      if (err) {
+        console.log('Error loading encryption key. Set it using the -k command or save it under encryption-key in the same folder.', err);
+        process.exit(-1);
+      }
+      // key read
+      // 1. compress
+
+    });*/
+    return;
+  } else {
+    console.error('Unsupported path type: only files or directories allowed.');
+    process.exit(-1);
+    return;
+  }
+
 }
 
+function download(auth, options) {
+  // retrieve file id
+  listFiles(auth, backupName, directory, (err, files) => {
+    if (err) {
+      console.error(err);
+      process.exit(-1);
+      return;
+    }
+    if (files.length === 0) {
+      // return empty set
+      console.log('No backups stored with name "%s".', options.name);
+      process.exit(3);
+      return;
+    }
+    var file = files[0]; // newest backup
+    // download most recent backup
+    downloadFile(auth, file.id, options.dest, (err, file) => {
+      if (err) {
+        console.error(err);
+        process.exit(-1);
+        return;
+      }
+      console.log ('Successfully downloaded latest backup.');
+      process.exit(0);
+    })
+  });
+}
 
-function uploadFile(auth, options) {
+/**
+ * Upload given file and attaching the backupName to properties metadata.
+ */
+function uploadFile(auth, file, backupName, callback) {
   const drive = google.drive({version: 'v3', auth});
-  var fileName = options.file.split('/');
-  fileName = fileName[fileName.length - 1];
+  var fileName = path.basename(file);
   var fileMetadata = {
-    'name': options.file
+    'name': options.file,
+    'description': 'Auto generated by gdrive-backup.'
+    'properties': {
+      // backup name to identify backup
+      'backup_name': backupName
+    }
   };
   var media = {
-    // TODO set mime type (mimeType: 'image/jpeg'),
-    body: fs.createReadStream(options.file)
+    // TODO set mime type to some archive type (mimeType: 'image/jpeg'),
+    body: fs.createReadStream(file)
   };
   drive.files.create({
     resource: fileMetadata,
@@ -160,20 +247,17 @@ function uploadFile(auth, options) {
   }, function (err, file) {
     if (err) {
       // Handle error
-      console.error(err);
-      process.exit(1);
+      callback(err, null);
     } else {
-      console.log('Uploaded file with id:')
-      console.log(file.data.id);
+      callback(null, file.data);
     }
   });
 }
 
 
-function downloadFile(auth, options) {
+function downloadFile(auth, fileId, destinationFile, callback) {
   const drive = google.drive({version: 'v3', auth});
-  var fileId = options.fileId;
-  var dest = fs.createWriteStream(options.dest);
+  var dest = fs.createWriteStream(destinationFile);
   console.log('Downloading file with id: ' + fileId);
 
   drive.files.get({
@@ -182,15 +266,18 @@ function downloadFile(auth, options) {
     },
     { responseType: 'stream' },
     (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
+      if (err) {
+        callback(err, null);
+        return;
+      }
       //console.log(res.data);
       res.data
         .on('end', function() {
           console.log('Downloaded file.');
+          callback(null, res);
         })
         .on('error', function (err) {
-          console.error(err);
-          process.exit(1);
+          callback(err, null);
         })
         .pipe(dest);
     }
@@ -200,9 +287,9 @@ function downloadFile(auth, options) {
 /**
  * Retrieve
  */
-function listFiles(auth, options, callback) {
+function listFiles(auth, backupName, directory, callback) {
   // create query for files
-  var query = "properties has { key='backup_name' and value='" + options.name + "' }";
+  var query = "properties has { key='backup_name' and value='" + backupName + "' }";
   // TODO if directories are supported: add following line
   //query += " and 'folder_id' in parents";
 
@@ -215,7 +302,10 @@ function listFiles(auth, options, callback) {
     orderBy: 'addedTime desc'
 
   }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
+    if (err) {
+      callback(err, null);
+      return;
+    }
     const files = res.data.files;
     if (files.length) {
       console.log('Files:');
@@ -225,6 +315,7 @@ function listFiles(auth, options, callback) {
     } else {
       console.log('No files found.');
     }
+    callback(null, files);
   });
 }
 
@@ -286,7 +377,7 @@ function getAccessToken(oAuth2Client, options, callback) {
         fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
           if (err) {
             console.error(err);
-            process.exit(1);
+            process.exit(-1);
           }
           console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
           callback(oAuth2Client, options);
@@ -330,7 +421,7 @@ function getAccessToken(oAuth2Client, options, callback) {
       fs.writeFile(path.resolve(__dirname, options.tokenPath), JSON.stringify(token), (err) => {
         if (err) {
           console.error(err);
-          process.exit(1);
+          process.exit(-1);
         }
         console.log('Token stored to', path.resolve(__dirname, options.tokenPath));
         callback(oAuth2Client, options);
