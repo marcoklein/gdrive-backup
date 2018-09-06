@@ -19,54 +19,52 @@ Click *Enable the Drive Api* button to create an application and download your c
 
 ## Usage
 Currently the following three commands are available (all on the root location):
-* Upload a file
-* Download a file
-* List files
+* Authorization with Google Drive
+* Backup (upload) of a file
+* Download of a backed up file
 
-### Upload a file
+If a folder has to be backed up tar or similar compression programs should be used.
+
+### Backup a file
+I file is uploaded using the *backup* option. The second argument adds a tag
+to the backup that is used to retrieve the backup.
 ```
-gdrive-backup upload testupload.txt -c mycredentials.json
+gdrive-backup backup testupload.txt testtag -c mycredentials.json
 ```
 Help:
 ```
-Usage: upload [options] <file>
+Usage: backup [options] <path> <name>
+
+Backup a specific folder with a backup name tag.
 
 Options:
 
-  -c, --credentials <credentials.json>  set credentials file path. defaults to "credentials.json"
-  -t, --upload-type <type>              set upload type. defaults to "resumable"
-  --token-code <code>                   set token code needed to authorize the app
-  -h, --help                            output usage information
+	-c, --credentials-path <credentials-path>  set [credentials-path] file path (default: credentials.json)
+	-t, --token-path <token>                   set [token] file path (default: token.json)
+	-s, --encryption-key <encryption-key>      set [encryption-key] file path used for encryption (default: encryption-key)
+	--token-code <code>                        set token code needed to authorize the app
+	-h, --help                                 output usage information
 ```
 ### Download a file
+After a successful backup the file can be downloaded using the provided name tag.
+If there are multiple files with the same tag, always the latest (newest) file is downloaded.
 ```
-gdrive-backup download 1SZZy40xTPPMJG1pMl3ikpULVg5VKE5rq -c mycredentials.json -d testupload.txt
-```
-Help:
-```
-Usage: download [options] <id>
-
-Options:
-
-  -d, --dest <file>                     set destination file (required)
-  -c, --credentials <credentials.json>  set credentials file path. defaults to "credentials.json"
-  -t, --upload-type <type>              set upload type. defaults to "resumable"
-  --token-code <code>                   set token code needed to authorize the app
-  -h, --help                            output usage information
-```
-### List files
-```
-gdrive-backup list -c mycredentials.json
+gdrive-backup download testtag -c mycredentials.json -d testupload.txt
 ```
 Help:
 ```
-Usage: list [options]
+Usage: download [options] <name>
+
+Download latest backup with given name tag.
 
 Options:
 
-  -c, --credentials <credentials.json>  set credentials file path. defaults to "credentials.json"
-  --token-code <code>                   set token code needed to authorize the app
-  -h, --help                            output usage information
+	-d, --dest <file>                          set destination file
+	-c, --credentials-path <credentials-path>  set [credentials-path] file path (default: credentials.json)
+	-t, --token-path <token>                   set [token] file path (default: token.json)
+	--token-code <code>                        set token code needed to authorize the app
+	--no-input                                 set flag to not process user input (e.g. to input the authorization token in shell)
+	-h, --help                                 output usage information
 ```
 
 # Storing and retrieving backups with properties
@@ -80,9 +78,7 @@ properties has { key='backup_name' and value='name' } and 'folder_id' in parents
 
 
 # Next Steps
-* Support Folder upload
+* Backup into folder
 * Make tutorial about backup (download latest file from specific folder)
-* Instruction steps for token verification
+	* Instruction steps for token verification
 * Name files automatically
-* Compression
-* Encryption

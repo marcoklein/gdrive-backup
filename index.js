@@ -16,7 +16,7 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 
 program
-  .description('Easily upload, download and list backups. Upcoming feature: backup within folders, encryption.');
+  .description('Easily upload, download and list backups. Upcoming feature: backup within folders.');
 
 program
   .command('authorize')
@@ -36,8 +36,8 @@ program
 
 // TODO insert custom help with *.on('help');
 program
-  .command('backup <path> <name> [directory]')
-  .description('Coming soon! Backup a specific folder using compression and encryption.')
+  .command('backup <path> <name>') // coming soon: [directory] support
+  .description('Backup a specific folder with a backup name tag.')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
   .option('-t, --token-path <token>', 'set [token] file path', 'token.json')
   .option('-s, --encryption-key <encryption-key>', 'set [encryption-key] file path used for encryption', 'encryption-key')
@@ -71,7 +71,7 @@ program
 
 
 program
-  .command('download <name> [directory]')
+  .command('download <name>') // coming soon: [directory] support
   .description('Download latest backup with given name tag.')
   .option('-d, --dest <file>', 'set destination file')
   .option('-c, --credentials-path <credentials-path>', 'set [credentials-path] file path', 'credentials.json')
